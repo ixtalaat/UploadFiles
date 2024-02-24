@@ -75,5 +75,24 @@ namespace Upload.Api.Controllers
 
             return File(memoryStream, uploadedFile.ContentType, uploadedFile.FileName);
         }
+
+        [HttpDelete("{fileName}")]
+        public IActionResult DeleteFile(string fileName)
+        {
+            var uploadedFile = _context.Files.FirstOrDefault(f => f.StoredFileName == fileName);
+
+            if (uploadedFile == null)
+            {
+                return NotFound();
+            }
+
+            var filePath = Path.Combine(_hostingEnvironment.WebRootPath, "uploads", fileName);
+            System.IO.File.Delete(filePath);
+
+            _context.Files.Remove(uploadedFile);
+            _context.SaveChanges();
+
+            return NoContent();
+        }
     }
 }
